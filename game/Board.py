@@ -48,11 +48,11 @@ class Board:
 
             
         
-    def rotate_clockwise(matrix):
-        return np.rot90(matrix)
+    def rotate_clockwise(self):
+        self.state = np.rot90(self.state, k=3)
     
-    def rotate_counterclockwise(matrix):
-        return np.rot90(matrix, 3)
+    def rotate_counterclockwise(self):
+        self.state = np.rot90(self.state, k=1)
     
     def perform_action(self, action : Action):
 
