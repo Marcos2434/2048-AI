@@ -46,6 +46,19 @@ class Board:
                     return True
         return False
 
+    def terminal_test(self) -> bool:
+        # There are empty squares
+        for i in range(self.state.shape[0]):
+            for j in range(self.state.shape[1]):
+                if self.state[i,j] == 0:
+                    return False
+        
+        # Two neighbors are the same
+        for i in range(1, self.state.shape[0]-1):
+            for j in range(1, self.state.shape[1]-1):
+                if (self.state[i, j] == self.state[i, j+1]) or (self.state[i, j] == self.state[i, j-1]) or (self.state[i, j] == self.state[i+1, j]) or (self.state[i, j] == self.state[i-1, j]):
+                    return False
+        return True
             
         
     def rotate_clockwise(self):
@@ -53,6 +66,9 @@ class Board:
     
     def rotate_counterclockwise(self):
         self.state = np.rot90(self.state, k=1)
+    
+    def reverse_mat(self):
+        self.state = np.fliplr(self.state)
     
     def perform_action(self, action : Action):
 
@@ -102,6 +118,9 @@ class Board:
                     
         self.add_new_number()
         if self.goal_test(): print("You won!")
+        if self.terminal_test(): 
+            print("You lost")
+            return
             
     def add_new_number(self):
         values = [2, 4]
@@ -117,6 +136,3 @@ class Board:
             column = rand.randint(0,3)
 
         self.state[row, column] = new_number
-
-    def reverse_mat(self):
-        self.state = np.fliplr(self.state)
