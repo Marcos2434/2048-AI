@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.typing import ArrayLike
 import random as rand
+import copy
 
 from enum import Enum
 
@@ -60,7 +61,7 @@ class Board:
                     return False
         return True
             
-        
+
     def rotate_clockwise(self):
         self.state = np.rot90(self.state, k=3)
     
@@ -71,6 +72,14 @@ class Board:
         self.state = np.fliplr(self.state)
     
     def perform_action(self, action : Action):
+
+        """
+        Save copy of old state (maybe find better solution for this)
+        The purpose is to not add a new number if the action performed is not allowed (i.e. trying to move
+        right when all numbers are already to the right and no same numbers are neighbors). AI would probably
+        never do such a move, so maybe it is not necessary at all.
+        """
+        old_state = copy.deepcopy(self.state)
 
         def tryMoveRight(i, j, merge_counter):
             # is the cell a 0 or are we on the last column?
@@ -115,12 +124,19 @@ class Board:
                 # Iterate from the right:
                 for j in range(self.state.shape[1]-1, -1, -1):
                     tryMoveRight(i, j, 0)
-                    
-        self.add_new_number()
-        if self.goal_test(): print("You won!")
-        if self.terminal_test(): 
-            print("You lost")
-            return
+
+        changed = False
+        for i in range(self.state.shape[0]):
+            for j in range(self.state.shape[1]):
+                if old_state[i,j] != self.state[i,j]:
+                    changed = True
+
+        if changed:            
+            self.add_new_number()
+            if self.goal_test(): print("You won!")
+            if self.terminal_test(): 
+                print("You lost")
+                return
             
     def add_new_number(self):
         values = [2, 4]
