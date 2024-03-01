@@ -14,6 +14,7 @@ class Action(Enum):
 class Board:
     def __init__(self, init_state : ArrayLike = None) -> None:
         self.state = self.generate_init_state() if init_state is None else init_state
+        self.score = 0
     
     def __str__(self) -> str:
         return str(self.state)
@@ -93,6 +94,8 @@ class Board:
             elif self.state[i, j+1] == self.state[i, j]:
                 if merge_counter >= 1: return
                 self.state[i, j+1] *= 2
+                # Add the merged numbers to the score
+                self.score += self.state[i, j+1]
                 self.state[i, j] = 0
                 tryMoveRight(i, j+1, merge_counter+1)
         
@@ -131,7 +134,8 @@ class Board:
                 if old_state[i,j] != self.state[i,j]:
                     changed = True
 
-        if changed:            
+        if changed:
+            print("Score: ", self.score)            
             self.add_new_number()
             if self.goal_test(): print("You won!")
             if self.terminal_test(): 
