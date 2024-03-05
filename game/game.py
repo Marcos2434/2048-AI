@@ -14,13 +14,13 @@ def main():
     # Ask user for action (this will be replaced by AI)
     action = input("Enter action, 'q' to quit: ")
     while action != 'q':
-        if action == 'j':
+        if action == 'a':
             b.perform_action(Action.LEFT)
-        elif action == 'k':
+        elif action == 's':
             b.perform_action(Action.DOWN)
-        elif action == 'l':
+        elif action == 'd':
             b.perform_action(Action.RIGHT)
-        elif action == 'i':
+        elif action == 'w':
             b.perform_action(Action.UP)
 
         print(b)
