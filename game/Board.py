@@ -1,11 +1,11 @@
 import numpy as np
 from numpy.typing import ArrayLike
 import random as rand
-import copy
+from copy import deepcopy
 
 from enum import Enum
 
-class Action(Enum):
+class Actions(Enum):
     UP = 0
     DOWN = 1
     LEFT = 2
@@ -15,6 +15,12 @@ class Board:
     def __init__(self, init_state : ArrayLike = None) -> None:
         self.state = self.generate_init_state() if init_state is None else init_state
         self.score = 0
+    
+    def copy(self):
+        return deepcopy(self)
+    
+    def is_cutoff(self, d : int) -> bool:
+        return d == 0
     
     def __str__(self) -> str:
         return str(self.state)
@@ -54,11 +60,21 @@ class Board:
             for j in range(self.state.shape[1]):
                 if self.state[i,j] == 0:
                     return False
-        
         # Two neighbors are the same
-        for i in range(1, self.state.shape[0]-1):
-            for j in range(1, self.state.shape[1]-1):
-                if (self.state[i, j] == self.state[i, j+1]) or (self.state[i, j] == self.state[i, j-1]) or (self.state[i, j] == self.state[i+1, j]) or (self.state[i, j] == self.state[i-1, j]):
+        # for i in range(1, self.state.shape[0]-1):
+        #     for j in range(1, self.state.shape[1]-1):
+        #         if (self.state[i, j] == self.state[i, j+1]) or (self.state[i, j] == self.state[i, j-1]) or (self.state[i, j] == self.state[i+1, j]) or (self.state[i, j] == self.state[i-1, j]):
+        #             return False
+            # Check for possible merges in rows
+        for row in self.state:
+            for i in range(len(row) - 1):
+                if row[i] == row[i + 1]:
+                    return False
+
+        # Check for possible merges in columns
+        for col in zip(*self.state):
+            for i in range(len(col) - 1):
+                if col[i] == col[i + 1]:
                     return False
         return True
             
@@ -71,16 +87,25 @@ class Board:
     
     def reverse_mat(self):
         self.state = np.fliplr(self.state)
-    
-    def perform_action(self, action : Action):
 
+    #def is_valid_action(self, a: Actions) -> bool:
+    #    old_state : Board = self.copy()
+    #    old_state.perform_action(a)
+    #    changed = False
+    #    for i in range(self.state.shape[0]):
+    #        for j in range(self.state.shape[1]):
+    #            if old_state[i,j] != self.state[i,j]:
+    #                changed = True
+        
+    
+    def perform_action(self, action : Actions, addNewNumber = True) -> bool:
         """
         Save copy of old state (maybe find better solution for this)
         The purpose is to not add a new number if the action performed is not allowed (i.e. trying to move
-        right when all numbers are already to the right and no same numbers are neighbors). AI would probably
-        never do such a move, so maybe it is not necessary at all.
+        right when all numbers are already to the right and no same numbers are neighbors).
         """
-        old_state = copy.deepcopy(self.state)
+        
+        old_state = deepcopy(self.state)
 
         def tryMoveRight(i, j, merge_counter):
             # is the cell a 0 or are we on the last column?
@@ -100,21 +125,21 @@ class Board:
                 tryMoveRight(i, j+1, merge_counter+1)
         
 
-        if action == Action.UP:
+        if action == Actions.UP:
             self.rotate_clockwise()
             for j in range(self.state.shape[1]):
                 for i in range(self.state.shape[0]):
                     tryMoveRight(i, j, 0)
             self.rotate_counterclockwise()
             
-        elif action == Action.DOWN:
+        elif action == Actions.DOWN:
             self.rotate_counterclockwise()
             for j in range(self.state.shape[1]-1, -1, -1):
                 for i in range(self.state.shape[0]-1, -1, -1):
                     tryMoveRight(i, j, 0)
             self.rotate_clockwise()
             
-        elif action == Action.LEFT:
+        elif action == Actions.LEFT:
             self.reverse_mat()
             for i in range(self.state.shape[0]):
                 # Iterate from the right:
@@ -122,7 +147,7 @@ class Board:
                     tryMoveRight(i, j, 0)
             self.reverse_mat()
 
-        elif action == Action.RIGHT:
+        elif action == Actions.RIGHT:
             for i in range(self.state.shape[0]):
                 # Iterate from the right:
                 for j in range(self.state.shape[1]-1, -1, -1):
@@ -134,13 +159,16 @@ class Board:
                 if old_state[i,j] != self.state[i,j]:
                     changed = True
 
+        # if self.terminal_test(): 
+        #     print("\nYou lost\n")
+        #     return True
         if changed:
-            print("Score: ", self.score)            
-            self.add_new_number()
-            if self.goal_test(): print("You won!")
-            if self.terminal_test(): 
-                print("You lost")
-                return
+            # if self.goal_test():
+            #     print("\nYou won!\n")
+            if addNewNumber: self.add_new_number()
+            return True   
+        # If the action did not change the state, then the action was not valid
+        return False
             
     def add_new_number(self):
         values = [2, 4]

@@ -1,21 +1,28 @@
-import Board
 import numpy as np
+from numpy.typing import ArrayLike
 from enum import Enum
+from Board import Board, Actions
+from copy import deepcopy
 
 # Possibly apply machine learning to figure out the best weights for the utility function
 # (also consider snake-shaped position weights)
-POSITION_WEIGHTS = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]])
-MONOTONICITY_WEIGHT = 10
-MAX_TILE_BONUS_WEIGHT = 10
-EMPTY_CELLS_BONUS_WEIGHT = 10
+# POSITION_WEIGHTS = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]])
+POSITION_WEIGHTS = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
+MONOTONICITY_WEIGHT = 0
+MAX_TILE_BONUS_WEIGHT = 0
+EMPTY_CELLS_BONUS_WEIGHT = 0
 
 class Player(Enum):
     MAX = 0
     CHANCE = 1
 
+class ChanceActions(Enum):
+    ADD_2 = 0
+    ADD_4 = 1
+
 def utility(s : Board, p : Player) -> int:
     """
-    Utility for terminal test is analogous to eval for cutoff test
+    Utility for terminal test is anallogous to eval for cutoff test
 
     A simple utility function for 2048 could be the sum of the values 
     of all tiles on the board. However, more sophisticated utility 
@@ -24,15 +31,15 @@ def utility(s : Board, p : Player) -> int:
     """
     
     # these are found by using current state s
-    score = s.score
-    max_tile = s.state.max()
+    score = 0
+    max_tile = 0
     empty_cells = 0
 
     for row in s.state:
         for cell in row:
-            #score += cell
-            #if cell > max_tile:
-            #    max_tile = cell
+            score += cell
+            if cell > max_tile:
+                max_tile = cell
             if cell == 0:
                 empty_cells += 1
     
@@ -40,12 +47,12 @@ def utility(s : Board, p : Player) -> int:
     
     if p == Player.MAX:
         # Weighted sum based on position
-        for i in range(s.size):
-            for j in range(s.size):
+        for i in range(s.state.shape[0]):
+            for j in range(s.state.shape[1]):
                 score += s.state[i][j] * position_weights[i][j]
         
         # Monotonicity score
-        def calculate_monotonicity_score():
+        def calculate_monotonicity_score(s):
             """
             Monotonicity is a measure of how the values of the tiles 
             are arranged in a non-decreasing order along the rows and 
@@ -53,12 +60,12 @@ def utility(s : Board, p : Player) -> int:
             it allows for easier merging of tiles and thus higher scores.
             """
             score = 0
-            for i in range(s.size):
-                for j in range(s.size-1):
-                    if s.state[i][j] >= s.state[i][j+1]:
-                        score += s.state[i][j] - s.state[i][j+1]
-                    if s.state[j][i] >= s.state[j+1][i]:
-                        score += s.state[j][i] - s.state[j+1][i]
+            for i in range(s.state.shape[0]):
+                for j in range(s.state.shape[1]-1):
+                        if s.state[i][j] >= s.state[i][j+1]:
+                            score += s.state[i][j] - s.state[i][j+1]
+                        if s.state[j][i] >= s.state[j+1][i]:
+                            score += s.state[j][i] - s.state[j+1][i]
             return score
         
         monotonicity_score = calculate_monotonicity_score(s)
@@ -71,8 +78,46 @@ def utility(s : Board, p : Player) -> int:
         # Bonus for empty cells
         empty_cells_bonus_weight = EMPTY_CELLS_BONUS_WEIGHT
         score += empty_cells * empty_cells_bonus_weight
+    return score
     
 
-def expectimax(s : Board, p: Player) -> int:
-    if s.terminal_test():
-        return utility(s, p)
+def result(s: Board, a: Actions, p : Player) -> set[Board]:
+    """
+    Returns the resulting state from applying action a to state s
+    """
+    new_board : Board = s.copy()
+    match p:
+        case Player.MAX:
+            
+            new_board.perform_action(a, addNewNumber = False)
+            return new_board
+        case Player.CHANCE:
+            # Initiate set   
+            uniques : set[Board] = set()
+            
+            # If empty cell, add 2 and 4 to the cell and add to set 
+            for i in range(new_board.state.shape[0]):
+                for j in range(new_board.state.shape[1]):
+                    if new_board.state[i, j] == 0:
+                        tmp = new_board.copy()
+                        for k in [2, 4]:
+                            tmp.state[i, j] = k
+                            uniques.add(tmp)
+            return uniques
+
+    
+def P(a : ChanceActions, _ : Board) -> float:
+    """
+    Returns the probability of chance chosing action a in s.
+    
+    s unused because the probability is independent of the state.
+    """
+    return 0.9 if a == ChanceActions.ADD_2 else 0.1
+
+
+def expectimax(s : Board, p: Player, d : int) -> int:
+    if s.is_cutoff(d): return utility(s, p)
+    elif p == Player.MAX: return max([expectimax(result(s, a, p), Player.MAX, d-1) for a in Actions])
+    elif p == Player.CHANCE: 
+        outcomes = [(P(a, s), expectimax(result(s, a, p), Player.CHANCE), d-1) for a in ChanceActions(s)]
+        return sum(prob * value for prob, value in outcomes) / (len(outcomes) / 2)
