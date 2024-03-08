@@ -6,8 +6,8 @@ from copy import deepcopy
 
 # Possibly apply machine learning to figure out the best weights for the utility function
 # (also consider snake-shaped position weights)
-# POSITION_WEIGHTS = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]])
 POSITION_WEIGHTS = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]])
+# POSITION_WEIGHTS = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
 MONOTONICITY_WEIGHT = 0
 MAX_TILE_BONUS_WEIGHT = 0
 EMPTY_CELLS_BONUS_WEIGHT = 0
@@ -17,8 +17,8 @@ class Player(Enum):
     CHANCE = 1
 
 class ChanceActions(Enum):
-    ADD_2 = 0
-    ADD_4 = 1
+    ADD_2 = 2
+    ADD_4 = 4
 
 def utility(s : Board, p : Player) -> int:
     """
@@ -100,13 +100,12 @@ def result(s: Board, a: Actions, p : Player) -> set[Board]:
                 for j in range(new_board.state.shape[1]):
                     if new_board.state[i, j] == 0:
                         tmp = new_board.copy()
-                        for k in [2, 4]:
-                            tmp.state[i, j] = k
-                            uniques.add(tmp)
+                        tmp.state[i, j] = a.value
+                        uniques.add(tmp)
             return uniques
 
     
-def P(a : ChanceActions, _ : Board) -> float:
+def P(a : ChanceActions) -> float:
     """
     Returns the probability of chance chosing action a in s.
     
@@ -117,7 +116,19 @@ def P(a : ChanceActions, _ : Board) -> float:
 
 def expectimax(s : Board, p: Player, d : int) -> int:
     if s.is_cutoff(d): return utility(s, p)
-    elif p == Player.MAX: return max([expectimax(result(s, a, p), Player.MAX, d-1) for a in Actions])
-    elif p == Player.CHANCE: 
-        outcomes = [(P(a, s), expectimax(result(s, a, p), Player.CHANCE), d-1) for a in ChanceActions(s)]
+    elif p == Player.MAX:
+        return max([expectimax(result(s, a, p), Player.CHANCE, d-1) for a in Actions])
+    # elif p == Player.CHANCE: 
+    #     outcomes = [(P(a), expectimax(result(s, a, p), Player.MAX, d-1)) for a in ChanceActions]
+    #     return sum(prob * value for prob, value in outcomes) / (len(outcomes) / 2)
+    elif p == Player.CHANCE:
+        outcomes = []
+        for a in ChanceActions:
+            for r in result(s, a, p):
+                outcomes.append((P(a), expectimax(r, Player.MAX, d-1)))
+        if len(outcomes) == 0:
+            return 0
         return sum(prob * value for prob, value in outcomes) / (len(outcomes) / 2)
+
+
+

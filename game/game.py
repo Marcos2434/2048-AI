@@ -4,16 +4,15 @@ from ai import Player, expectimax
 from time import sleep
 from enum import Enum
 
-n_games = 20
-
-depth = 1 # cutoff depth
+n_games = 10
+depth = 4 # cutoff depth
 
 class gameType(Enum):
     AI = 0
     USER = 1
     PERFORMANCE_TEST = 2
 
-game = gameType.PERFORMANCE_TEST
+game = gameType.AI
 
 def main():
     match game:
@@ -38,6 +37,7 @@ def main():
                 # Ask for new action
                 action = input("Enter action, 'q' to quit: ")
         case gameType.AI:
+            print("AI Playing...\n")
             b = Board()
             print(b)
             won = False
@@ -46,7 +46,9 @@ def main():
                 for a in Actions:
                     new_board : Board = b.copy()
                     if new_board.perform_action(a): # if action is valid     
-                        moves.update({a: expectimax(new_board, Player.MAX, depth)})
+                        e = expectimax(new_board, Player.MAX, depth)
+                        moves.update({a: e})
+                print("Expected ", e)
                 best_move = max(moves, key=lambda k: moves[k])
 
                 b.perform_action(best_move)

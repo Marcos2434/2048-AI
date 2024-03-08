@@ -60,12 +60,7 @@ class Board:
             for j in range(self.state.shape[1]):
                 if self.state[i,j] == 0:
                     return False
-        # Two neighbors are the same
-        # for i in range(1, self.state.shape[0]-1):
-        #     for j in range(1, self.state.shape[1]-1):
-        #         if (self.state[i, j] == self.state[i, j+1]) or (self.state[i, j] == self.state[i, j-1]) or (self.state[i, j] == self.state[i+1, j]) or (self.state[i, j] == self.state[i-1, j]):
-        #             return False
-            # Check for possible merges in rows
+                
         for row in self.state:
             for i in range(len(row) - 1):
                 if row[i] == row[i + 1]:
@@ -87,16 +82,6 @@ class Board:
     
     def reverse_mat(self):
         self.state = np.fliplr(self.state)
-
-    #def is_valid_action(self, a: Actions) -> bool:
-    #    old_state : Board = self.copy()
-    #    old_state.perform_action(a)
-    #    changed = False
-    #    for i in range(self.state.shape[0]):
-    #        for j in range(self.state.shape[1]):
-    #            if old_state[i,j] != self.state[i,j]:
-    #                changed = True
-        
     
     def perform_action(self, action : Actions, addNewNumber = True) -> bool:
         """
