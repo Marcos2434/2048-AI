@@ -2,20 +2,25 @@ from Board import Board, Actions
 from numpy import array
 from ai import Player, expectimax
 from time import sleep
+from enum import Enum
 
-userPlaying = False
-n_games = 100
+n_games = 20
+
+depth = 1 # cutoff depth
+
+class gameType(Enum):
+    AI = 0
+    USER = 1
+    PERFORMANCE_TEST = 2
+
+game = gameType.PERFORMANCE_TEST
 
 def main():
-    scores = []
-    for i in range(n_games):
-    
-        # random initial state
-        #b = Board(array([[16, 4, 2, 8], [4, 2, 32, 8], [16, 4, 128, 2], [2, 16, 8, 2]]))
-        b = Board()
-        #print(b)
-
-        if userPlaying:
+    match game:
+        case gameType.USER:
+            b = Board()
+            print(b)
+        
             # Ask user for action (this will be replaced by AI)
             action = input("Enter action, 'q' to quit: ")
             while action != 'q':
@@ -32,11 +37,10 @@ def main():
                 
                 # Ask for new action
                 action = input("Enter action, 'q' to quit: ")
-        else:
-            # AI playing
-            # while not b.terminal_test():
-            
-            depth = 1 # cutoff depth
+        case gameType.AI:
+            b = Board()
+            print(b)
+            won = False
             while not b.terminal_test():
                 moves = {}
                 for a in Actions:
@@ -46,21 +50,35 @@ def main():
                 best_move = max(moves, key=lambda k: moves[k])
 
                 b.perform_action(best_move)
-                #print(f"Best move: {best_move}")
-                #print(b)
+                print(f"Best move: {best_move}")
+                print(b)
                 if b.goal_test():
-                    #print("You won! :)")
+                    print("You won! :)")
+                    won = True
                     break
-                #print()
+                print()
+            
+            if not won:
+                print("Game over :( You suck.")
+            print("Score: ", b.score)
+            
+        case gameType.PERFORMANCE_TEST:
+            scores = []
+            for i in range(n_games):
+                b = Board()
+                while not b.terminal_test():
+                    moves = {}
+                    for a in Actions:
+                        new_board : Board = b.copy()
+                        if new_board.perform_action(a):
+                            moves.update({a: expectimax(new_board, Player.MAX, depth)})
+                    best_move = max(moves, key=lambda k: moves[k])
+                    b.perform_action(best_move)
+                print(f"Game {i} Score: ", b.score)
+                scores.append(b.score)
+            avg_score = sum(scores)/n_games
+            print("Average Game Score: ", avg_score)
 
-            #print("Game over :( You suck.")
-            #print("Score: ", b.score)
-            #print(scores)
-            scores.append(b.score)
-    
-    avg_score = sum(scores)/n_games
-    print(scores)
-    print(avg_score)
 
 
 if __name__ == "__main__":
