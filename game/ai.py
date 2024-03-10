@@ -6,8 +6,8 @@ from copy import deepcopy
 
 # Possibly apply machine learning to figure out the best weights for the utility function
 # (also consider snake-shaped position weights)
-POSITION_WEIGHTS = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]])
 # POSITION_WEIGHTS = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
+POSITION_WEIGHTS = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]])
 MONOTONICITY_WEIGHT = 0
 MAX_TILE_BONUS_WEIGHT = 0
 EMPTY_CELLS_BONUS_WEIGHT = 0
@@ -118,7 +118,7 @@ def expectimax(s : Board, p: Player, d : int) -> int:
     if s.is_cutoff(d): return utility(s, p)
     elif p == Player.MAX:
         return max([expectimax(result(s, a, p), Player.CHANCE, d-1) for a in Actions])
-    # elif p == Player.CHANCE: 
+    # elif p == P layer.CHANCE: 
     #     outcomes = [(P(a), expectimax(result(s, a, p), Player.MAX, d-1)) for a in ChanceActions]
     #     return sum(prob * value for prob, value in outcomes) / (len(outcomes) / 2)
     elif p == Player.CHANCE:
