@@ -7,7 +7,10 @@ from copy import deepcopy
 # Possibly apply machine learning to figure out the best weights for the utility function
 # (also consider snake-shaped position weights)
 # POSITION_WEIGHTS = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
-POSITION_WEIGHTS = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]]) # try exponential weights
+POSITION_WEIGHTS = np.array([[0, 1, 2, 3], 
+                             [1, 2, 3, 4], 
+                             [2, 3, 4, 5], 
+                             [3, 4, 5, 6]]) # try exponential weights
 MONOTONICITY_WEIGHT = 0
 MAX_TILE_BONUS_WEIGHT = 0
 EMPTY_CELLS_BONUS_WEIGHT = 0
