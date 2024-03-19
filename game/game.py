@@ -68,12 +68,6 @@ def main():
     
     match game:
         case gameType.USER:
-            b = Board(array([
-                [0, 0, 0, 4],
-                [0, 0, 0, 0],
-                [0, 0, 0, 2],
-                [0, 0, 0, 2]
-            ]))
             print(b)
         
             # # Ask user for action (this will be replaced by AI)
