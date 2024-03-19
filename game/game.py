@@ -6,14 +6,14 @@ from enum import Enum
 import tkinter.messagebox as messagebox
 
 n_games = 10
-depth = 4 # cutoff depth (only even values make sense, as we cannot predict chance's moves)
+depth = 6 # cutoff depth (only even values make sense, as we cannot choose chance's moves)
 
 class gameType(Enum):
     AI = 0
     USER = 1
     PERFORMANCE_TEST = 2
 
-game = gameType.AI
+game = gameType.USER
 
 UP_KEYS = ('w', 'W', 'Up')
 LEFT_KEYS = ('a', 'A', 'Left')
@@ -68,6 +68,12 @@ def main():
     
     match game:
         case gameType.USER:
+            b = Board(array([
+                [0, 0, 0, 4],
+                [0, 0, 0, 0],
+                [0, 0, 0, 2],
+                [0, 0, 0, 2]
+            ]))
             print(b)
         
             # # Ask user for action (this will be replaced by AI)

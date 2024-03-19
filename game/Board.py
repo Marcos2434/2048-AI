@@ -104,18 +104,26 @@ class Board:
             elif self.state[i, j+1] == self.state[i, j]:
                 if merge_counter >= 1: return
                 self.state[i, j+1] *= 2
+                self.state[i, j] = 0
                 # Add the merged numbers to the score
                 self.score += self.state[i, j+1]
-                self.state[i, j] = 0
                 tryMoveRight(i, j+1, merge_counter+1)
         
 
+        # if action == Actions.UP:
+        #     self.rotate_clockwise()
+        #     for j in range(self.state.shape[1]):
+        #         for i in range(self.state.shape[0]):
+        #             tryMoveRight(i, j, 0)
+        #     self.rotate_counterclockwise()
+        
         if action == Actions.UP:
             self.rotate_clockwise()
-            for j in range(self.state.shape[1]):
+            for j in range(self.state.shape[1]-1, -1, -1):
                 for i in range(self.state.shape[0]):
                     tryMoveRight(i, j, 0)
             self.rotate_counterclockwise()
+
             
         elif action == Actions.DOWN:
             self.rotate_counterclockwise()
