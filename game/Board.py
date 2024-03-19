@@ -109,14 +109,6 @@ class Board:
                 self.score += self.state[i, j+1]
                 tryMoveRight(i, j+1, merge_counter+1)
         
-
-        # if action == Actions.UP:
-        #     self.rotate_clockwise()
-        #     for j in range(self.state.shape[1]):
-        #         for i in range(self.state.shape[0]):
-        #             tryMoveRight(i, j, 0)
-        #     self.rotate_counterclockwise()
-        
         if action == Actions.UP:
             self.rotate_clockwise()
             for j in range(self.state.shape[1]-1, -1, -1):
@@ -124,7 +116,6 @@ class Board:
                     tryMoveRight(i, j, 0)
             self.rotate_counterclockwise()
 
-            
         elif action == Actions.DOWN:
             self.rotate_counterclockwise()
             for j in range(self.state.shape[1]-1, -1, -1):
