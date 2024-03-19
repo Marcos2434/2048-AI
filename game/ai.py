@@ -8,9 +8,13 @@ from copy import deepcopy
 # (also consider snake-shaped position weights)
 # POSITION_WEIGHTS = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
 POSITION_WEIGHTS = np.array([[0, 1, 2, 3], 
-                             [1, 2, 3, 4], 
-                             [2, 3, 4, 5], 
-                             [3, 4, 5, 6]]) # try exponential weights
+                             [7, 6, 5, 4], 
+                             [8, 9, 10, 11], 
+                            [15, 14, 13, 12]])
+# POSITION_WEIGHTS = np.array([[0, 1, 2, 3], 
+#                              [1, 2, 3, 4], 
+#                              [2, 3, 4, 5], 
+#                              [3, 4, 5, 6]]) # try exponential weights
 MONOTONICITY_WEIGHT = 0
 MAX_TILE_BONUS_WEIGHT = 0
 EMPTY_CELLS_BONUS_WEIGHT = 0

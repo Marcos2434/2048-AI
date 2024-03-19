@@ -116,7 +116,6 @@ def main():
                 if b.goal_test():
                     print("You won! :)")
                     won = True
-                    break
                 print()
             
             if not won:
