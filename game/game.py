@@ -6,14 +6,14 @@ from enum import Enum
 import tkinter.messagebox as messagebox
 
 n_games = 10
-depth = 6 # cutoff depth (only even values make sense, as we cannot choose chance's moves)
+depth = 4 # cutoff depth (only even values make sense, as we cannot choose chance's moves)
 
 class gameType(Enum):
     AI = 0
     USER = 1
     PERFORMANCE_TEST = 2
 
-game = gameType.USER
+game = gameType.AI
 
 UP_KEYS = ('w', 'W', 'Up')
 LEFT_KEYS = ('a', 'A', 'Left')
